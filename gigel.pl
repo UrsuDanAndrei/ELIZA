@@ -12,8 +12,8 @@ match_rule(Tokens, UserMemory, rule(Pattern, _, _, EmoList, _)) :-
 % Primeste replica utilizatorului (ca lista de tokens) si o lista de
 % reguli, iar folosind match_rule le filtrează doar pe cele care se
 % potrivesc cu replica dată de utilizator.
-find_matching_rules(Tokens, Rules, UserMemory, MatchingRules) :-
-	findall(Rule, member(Rule, Rules), match_rule(Tokens, UserMemory, Rule), MatchingRules).
+find_matching_rules(Tokens, RulesList, UserMemory, MatchingRules) :-
+	findall(Rule, member(Rule, RulesList), match_rule(Tokens, UserMemory, Rule), MatchingRules).
 
 % Intoarce in Answer replica lui Gigel. Selecteaza un set de reguli
 % (folosind predicatul rules) pentru care cuvintele cheie se afla in
@@ -33,7 +33,30 @@ find_matching_rules(Tokens, Rules, UserMemory, MatchingRules) :-
 % urma replicii (e.g. exit).
 %
 % Hint: min_score, ord_subset, find_matching_rules
-select_answer(_Tokens, _UserMemory, _BotMemory, _Answer, _Actions) :- fail.
+
+get_answers_from_rule(rule(_, Answers, _, _, _), Answers).
+get_actions_from_rule(rule(_, _, Actions, _, _, _), Actions).
+
+%% rulesList2answersActionsList([], []). 
+%% rulesList2answersActionsList([H|TRulesList], R) :-
+%% 	rulesList2answersActionsList(TRulesList, TAnsList),
+%% 	get_answers_and_actions_from_rule(H, Pereche),
+%% 	append(TAnsList, Pereche, R).
+
+compose_list_for_min_element(_, [], []).
+compose_list_for_min_element(BotMemory, [HA|TAnswers], [(HAStr, Val)|TList]) :-
+	compose_list_for_min_element(BotMemory, TAnswers, TList),
+	get_answer(HA, BotMemory, Val),
+	unwords(HA, HAStr), !.
+
+select_answer(Tokens, UserMemory, BotMemory, Answer, Actions) :-
+	rules(KeyWords, RulesList), ord_subset(KeyWords, Tokens),
+	find_matching_rules(Tokens, RulesList, UserMemory, [Rule, _]),
+	get_answers_from_rule(Rule, Answers),
+	compose_list_for_min_element(BotMemory, Answers, List),
+	min_element(List, AnswerStr),
+	words(AnswerStr, Answer),
+	get_actions_from_rule(Rule, Actions).
 
 % Esuează doar daca valoarea exit se afla in lista Actions.
 % Altfel, returnează true.
