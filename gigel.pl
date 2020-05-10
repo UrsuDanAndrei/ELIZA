@@ -7,13 +7,13 @@
 % conversației.
 match_rule(Tokens, UserMemory, rule(Pattern, _, _, EmoList, _)) :-
 				Tokens = Pattern,
-				(EmoList == []; (get_emotion(UserMemory, Emo), member(Emo, EmoList))).
+				(EmoList == []; (get_emotion(UserMemory, Emo), (Emo == neutru; member(Emo, EmoList)))).
 
 % Primeste replica utilizatorului (ca lista de tokens) si o lista de
 % reguli, iar folosind match_rule le filtrează doar pe cele care se
 % potrivesc cu replica dată de utilizator.
 find_matching_rules(Tokens, RulesList, UserMemory, MatchingRules) :-
-	findall(Rule, member(Rule, RulesList), match_rule(Tokens, UserMemory, Rule), MatchingRules).
+	findall(Rule, (member(Rule, RulesList), match_rule(Tokens, UserMemory, Rule)), MatchingRules).
 
 % Intoarce in Answer replica lui Gigel. Selecteaza un set de reguli
 % (folosind predicatul rules) pentru care cuvintele cheie se afla in
@@ -35,7 +35,7 @@ find_matching_rules(Tokens, RulesList, UserMemory, MatchingRules) :-
 % Hint: min_score, ord_subset, find_matching_rules
 
 get_answers_from_rule(rule(_, Answers, _, _, _), Answers).
-get_actions_from_rule(rule(_, _, Actions, _, _, _), Actions).
+get_actions_from_rule(rule(_, _, Actions, _, _), Actions).
 
 %% rulesList2answersActionsList([], []). 
 %% rulesList2answersActionsList([H|TRulesList], R) :-
