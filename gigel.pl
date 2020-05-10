@@ -7,7 +7,7 @@
 % conversației.
 match_rule(Tokens, UserMemory, rule(Pattern, _, _, EmoList, _)) :-
 				Tokens = Pattern,
-				(EmoList == []; (get_emotion(UserMemory, Emo), (Emo == neutru; member(Emo, EmoList)))).
+				(EmoList == []; ((get_emotion(UserMemory, Emo), (member(Emo, EmoList))))).
 
 % Primeste replica utilizatorului (ca lista de tokens) si o lista de
 % reguli, iar folosind match_rule le filtrează doar pe cele care se
@@ -51,7 +51,7 @@ compose_list_for_min_element(BotMemory, [HA|TAnswers], [(HAStr, Val)|TList]) :-
 
 select_answer(Tokens, UserMemory, BotMemory, Answer, Actions) :-
 	rules(KeyWords, RulesList), ord_subset(KeyWords, Tokens),
-	find_matching_rules(Tokens, RulesList, UserMemory, [Rule, _]),
+	find_matching_rules(Tokens, RulesList, UserMemory, [Rule|_]),
 	get_answers_from_rule(Rule, Answers),
 	compose_list_for_min_element(BotMemory, Answers, List),
 	min_element(List, AnswerStr),
